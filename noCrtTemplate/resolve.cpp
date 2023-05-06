@@ -44,7 +44,7 @@ UINT32 resolve_hash_stra(LPCSTR s) {
 }
 
 UINT32 resolve_hash_strw(LPCWSTR s) {
-	return resolve_hash((BYTE*)s, resolve_strlenw(s));
+	return resolve_hash((BYTE*)s, (resolve_strlenw(s) * 2) - 1);
 }
 
 PPEB resolve_getpeb() {
@@ -92,7 +92,7 @@ HMODULE resolve_loadlibraryw(LPCWSTR module) {
 	pEntry = pHeadEntry->Flink;
 	while (pEntry != pHeadEntry) {
 		pLdrEntry = CONTAINING_RECORD(pEntry, LDR_DATA_TABLE_ENTRY, InMemoryOrderModuleList);
-		if (resolve_hash_strw(pLdrEntry->BaseDllName.Buffer) == 0xa1f2c0b0) {
+		if (resolve_hash_strw(pLdrEntry->BaseDllName.Buffer) == 0x72d1dd1f) {
 			_LoadLibraryW LoadLibraryW = (_LoadLibraryW)resolve_func((HMODULE)pLdrEntry->DllBase, 0x43bce09b);
 			if (LoadLibraryW == NULL) {
 				return NULL;
@@ -123,7 +123,7 @@ HMODULE resolve_loadlibrarya(LPCSTR module) {
 	pEntry = pHeadEntry->Flink;
 	while (pEntry != pHeadEntry) {
 		pLdrEntry = CONTAINING_RECORD(pEntry, LDR_DATA_TABLE_ENTRY, InMemoryOrderModuleList);
-		if (resolve_hash_strw(pLdrEntry->BaseDllName.Buffer) == 0xa1f2c0b0) {
+		if (resolve_hash_strw(pLdrEntry->BaseDllName.Buffer) == 0x72d1dd1f) {
 			_LoadLibraryA LoadLibraryA = (_LoadLibraryA)resolve_func((HMODULE)pLdrEntry->DllBase, 0x43bcfe85);
 			if (LoadLibraryA == NULL) {
 				return NULL;
