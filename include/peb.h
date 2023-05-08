@@ -1,7 +1,8 @@
 enum COMMON {
     NULL = 0x00,
     FALSE = 0x00,
-    TRUE  = 0x01
+    TRUE  = 0x01,
+    INVALID_SOCKET = 0xffffffff,
 };
 
 typedef void* VOID;

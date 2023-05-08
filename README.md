@@ -14,3 +14,16 @@ This project borrows code from the following:
 1. Write String Decryptor
 2. Write API Hashing Algorithm
 3. Prove they work
+
+## Where to Start
+
+1. Download `solutions/samples.zip`
+2. Copy `samples.zip` to your VM (with internet)
+3. In your Windows and Remnux VM, extract `samples.zip` (password is `infected`)
+4. Open `stealer.exe` with x64dbg (32-bit)
+5. In the Remnux VM, create a new Ghidra project and import `stealer.exe`
+6. In the Remnux VM with Ghidra, import the `.h` files from the `include/` directory
+7. Write a string decryptor in Python
+8. Write the API hashing algorithm in Python
+
+NOTE: Steps 7 or 8 and be in either order
