@@ -1,9 +1,0 @@
-#Ghidra Lock File
-#Mon May 08 17:42:38 ADT 2023
-OS\ Name=Linux
-OS\ Version=5.19.0-38-generic
-Username=remnux
-Hostname=lab
-<META>\ Supports\ File\ Channel\ Locking=Channel Lock
-OS\ Architecture=amd64
-Timestamp=5/8/23, 5\:42 PM
