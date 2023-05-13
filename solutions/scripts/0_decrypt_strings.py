@@ -1,10 +1,9 @@
-#TODO write a description for this script
-#@author Your Mom
-#@category _NEW_
+#Decrypt Workshop Strings
+#@author @c3rb3ru5d3d53c
+#@category Strings
 #@keybinding 
 #@menupath 
 #@toolbar 
-
 
 from ghidra.program.model.listing import CodeUnit
 from ghidra.program.model.lang import OperandType
@@ -31,19 +30,28 @@ def decrypt(data):
         data[i] ^= key[i % 32]
     return bytes(data)
 
-addrs = [x.getFromAddress() for x in getReferencesTo(get_address(g_decrypt_function))]
+def get_xrefs(address: int):
+    return [x.getFromAddress() for x in getReferencesTo(get_address(address))]
+
+addrs = get_xrefs(g_decrypt_function)
 
 def get_ciphertext(address, max_insn=128):
     ct = []
     for i in range(0, max_insn):
         cu = get_codeunit(address)
-        if cu.getMnemonicString().lower() == 'call' and i > 0:
+        if (cu.getMnemonicString().lower() == 'call' and
+            i > 0):
             break
-        if cu.getMnemonicString().lower() == 'mov' and cu.getOperandType(1) == OperandType.SCALAR and cu.getScalar(1).getValue() == 0x06:
+        if (cu.getMnemonicString().lower() == 'mov' and
+            cu.getOperandType(1) == OperandType.SCALAR and
+            cu.getScalar(1).getValue() == 0x06):
             break
-        if cu.getMnemonicString().lower() == 'mov' and cu.getOperandType(1) == OperandType.SCALAR and cu.getScalar(1).getValue() == 0x00:
+        if (cu.getMnemonicString().lower() == 'mov' and
+            cu.getOperandType(1) == OperandType.SCALAR and
+            cu.getScalar(1).getValue() == 0x00):
             break
-        if cu.getMnemonicString().lower() == 'mov' and cu.getOperandType(1) == OperandType.SCALAR:
+        if (cu.getMnemonicString().lower() == 'mov' and
+            cu.getOperandType(1) == OperandType.SCALAR):
             ct.append(cu.getScalar(1).getValue())
         address = cu.getPrevious().getAddress()
     return b''.join([c.to_bytes(4, 'little') for c in reversed(ct)]).split(b'\x00')[0]

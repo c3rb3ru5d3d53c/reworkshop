@@ -15,6 +15,13 @@ This project borrows code from the following:
 2. Write API Hashing Algorithm
 3. Prove they work
 
+## Tools
+
+1. [`peexports`](https://github.com/c3rb3ru5d3d53c/peexports)
+2. [`Remnux`](https://remnux.org/)
+3. [`Ghidra`](https://ghidra-sre.org/)
+4. [`Python`](https://www.python.org/)
+
 ## Where to Start
 
 1. Download `solutions/samples.zip`
