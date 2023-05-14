@@ -7,10 +7,13 @@
 
 from ghidra.program.model.listing import CodeUnit
 from ghidra.program.model.lang import OperandType
+from ghidra.program.flatapi import FlatProgramAPI
 from hexdump import hexdump
 from pprint import pprint
 
-g_decrypt_function = 0x00401420
+def search_memory(string, max_results=128):
+    fpi = FlatProgramAPI(getCurrentProgram())
+    return fpi.findBytes(currentProgram.getMinAddress(), ''.join(['.' if '?' in x else f'\\x{x}' for x in string.split()]), max_results)
 
 def get_address(address: int):
 	return currentProgram.getAddressFactory().getAddress(str(hex(address)))
@@ -23,17 +26,27 @@ def set_comment_eol(address, text, debug=False):
     if debug is False: cu.setComment(CodeUnit.EOL_COMMENT, text)
     if debug is True: print(str(address) + ' | ' + text)
 
-def decrypt(data):
-    key = bytearray([0x51,0x66,0x3d,0x22,0x66,0x81,0x9e,0x53,0x90,0x41,0xa1,0x86,0x47,0x07,0xa3,0x75,0xae,0x8a,0xd0,0xb4,0xf6,0xf8,0x16,0xa3,0x23,0x2f,0x3a,0xfe,0x8f,0x10,0x6f,0xf7])
+def decrypt(data, key):
+    key = bytearray(key)
     data = bytearray(data)
     for i in range(0, len(data)):
         data[i] ^= key[i % 32]
     return bytes(data)
 
-def get_xrefs(address: int):
-    return [x.getFromAddress() for x in getReferencesTo(get_address(address))]
+def get_xrefs(address):
+    return [x.getFromAddress() for x in getReferencesTo(address)]
 
-addrs = get_xrefs(g_decrypt_function)
+def get_decrypt_key(max_insn=32):
+    address = search_memory('55 8b ec 83 ec 20 8b 4? ?? 33 d2 56 8b 7? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? 85 f6 74 ?? 0f 1f 44 00 00 8b ca 83 e1 1f 8a 4c ?? ?? 30 0c 02 42 3b d6 72 ?? 5e 8b e5 5d c3')[0]
+    result = []
+    cu = get_codeunit(address)
+    for i in range(0, max_insn):
+        if cu.getMnemonicString().lower() == 'jz': break
+        if (cu.getMnemonicString().lower() == 'mov' and
+            cu.getOperandType(1) == OperandType.SCALAR):
+            result.append(cu.getScalar(1).getValue())
+        cu = cu.getNext()
+    return b''.join([c.to_bytes(4, 'little') for c in result])
 
 def get_ciphertext(address, max_insn=128):
     ct = []
@@ -56,8 +69,12 @@ def get_ciphertext(address, max_insn=128):
         address = cu.getPrevious().getAddress()
     return b''.join([c.to_bytes(4, 'little') for c in reversed(ct)]).split(b'\x00')[0]
 
+addrs = get_xrefs(search_memory('55 8b ec 83 ec 20 8b 4? ?? 33 d2 56 8b 7? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? c7 4? ?? ?? ?? ?? ?? 85 f6 74 ?? 0f 1f 44 00 00 8b ca 83 e1 1f 8a 4c ?? ?? 30 0c 02 42 3b d6 72 ?? 5e 8b e5 5d c3')[0])
+
+key = get_decrypt_key()
+
 for addr in addrs:
     ct = get_ciphertext(addr)
-    pt = decrypt(ct).rstrip(b'\x00').decode('ascii')
+    pt = decrypt(ct, key).rstrip(b'\x00').decode('ascii')
     set_comment_eol(addr, pt, debug=True)
     
