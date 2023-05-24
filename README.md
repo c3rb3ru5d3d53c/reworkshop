@@ -22,6 +22,9 @@ This project borrows code from the following:
 3. [`Ghidra`](https://ghidra-sre.org/)
 4. [`Python`](https://www.python.org/)
 
+## Solution Videos
+String Decryption: https://www.youtube.com/watch?v=DxRJKKPmIxQ
+
 ## Where to Start
 
 1. Download `solutions/samples.zip`
