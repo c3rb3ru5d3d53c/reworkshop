@@ -27,6 +27,12 @@ String Decryption: https://www.youtube.com/watch?v=DxRJKKPmIxQ
 
 ## Where to Start
 
+```bash
+sudo apt install git-lfs
+git clone https://github.com/c3rb3ru5d3d53c/reworkshop.git
+cd reworkshop/
+```
+
 1. Download `solutions/samples.zip`
 2. Copy `samples.zip` to your VM (with internet)
 3. In your Windows and Remnux VM, extract `samples.zip` (password is `infected`)
